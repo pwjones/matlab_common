@@ -1,0 +1,62 @@
+%load the two trace files
+rootdir = '~pwjones/glab/data/lgmd_vc/';
+expdir = '090615';
+fname = 'man';
+vc_filenum = 10;
+cc_filenum = 6;
+intra_amp = 100;
+dv = 10/(2^16)*1000/intra_amp; % (Volts/bit) * (mV/V) / amplification
+di = 10/(2^16)*1; % (Volts/bit) * 1nA/Volt sensitivity;
+medFilterWidth = 8; %.4ms
+
+%load CC file
+ccfile = sprintf('%s/%s/%s_%i_chan_2',rootdir,expdir, fname, cc_filenum);
+if ( exist(ccfile) ~= 2 )
+    err_str = sprintf('unable to find %s',ccfile);
+    errordlg(err_str,'Load trace error');
+    return;
+end;
+fid = fopen(ccfile, 'r','l');
+if ( fid == -1 )
+    err_str = sprintf('error opening %s',chan1file);
+    errordlg(err_str,'Load trace error');
+    return;
+end;
+cctrace = fread(fid,inf,'int16');
+fclose(fid);
+cc_trace = cctrace * dv; %convert A/D values to mV or nA
+cc_trace = medfilt2(cc_trace, [medFilterWidth, 1]); %filter the trace2
+ccmean = mean(cc_trace);
+ccstd = std(cc_trace);
+cc_trace_norm = (cc_trace-ccmean)/ccstd;
+
+%load VC file 
+vcfile = sprintf('%s/%s/%s_%i_chan_3',rootdir,expdir, fname, vc_filenum);
+if ( exist(ccfile) ~= 2 )
+    err_str = sprintf('unable to find %s',vcfile);
+    errordlg(err_str,'Load trace error');
+    return;
+end;
+fid = fopen(vcfile, 'r','l');
+if ( fid == -1 )
+    err_str = sprintf('error opening %s',chan1file);
+    errordlg(err_str,'Load trace error');
+    return;
+end;
+vctrace = fread(fid,inf,'int16');
+fclose(fid);
+vc_trace = vctrace * di *-1; %convert A/D values to mV or nA
+vc_trace = medfilt2(vc_trace, [medFilterWidth, 1]); %filter the trace2
+vcmean = mean(vc_trace);
+vcstd = std(vc_trace);
+vc_trace_norm = (vc_trace-vcmean)/vcstd;
+
+%plot the stuff
+figure;
+ah = axes; hold on;
+[cc_handle, cc_hist, cc_bins]  = plotVectorDistribution(ah, cc_trace_norm, .1,  'b');
+set(cc_handle,'BarWidth',1, 'EdgeColor', 'b');
+[vc_handle, vc_hist, vc_bins]  = plotVectorDistribution(ah, vc_trace_norm, .1,  'r');
+set(vc_handle,'BarWidth',.3, 'EdgeColor', 'r');
+
+resistance = ccstd/vcstd
