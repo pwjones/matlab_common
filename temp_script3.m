@@ -31,7 +31,7 @@ end
 for ii = 1:length(exp.vids)
     disp(exp.vids(ii).videoFN);
     exp.vids(ii).blobID(100,:)
-    exp.vids(ii).fcPeriod = 60;
+    %exp.vids(ii).fcPeriod = 60;
     exp.vids(ii).save;
     
 end
