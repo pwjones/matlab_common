@@ -37,7 +37,7 @@ for ii = 1:length(exp.vids)
 end
 
 
-%%
+%% Plot the velocities of the body and nose
 figure; 
 for ii = 1:length(exp.vids)
     subplot (3, ceil(length(exp.vids)/3), ii);
@@ -50,6 +50,8 @@ for ii = 1:length(exp.vids)
     subplot (3, ceil(length(exp.vids)/3), ii);
     %np = exp.vids(ii).findNose(1:exp.vids(ii).nFrames);
     np = exp.vids(ii).nosePos;
+    nf = exp.vids(ii).nFrames;
+    disp('\n');
     disp(['Number of frames without nose: ' num2str(sum(isnan(np(:,1))))]);
     exp.vids(ii).computeVelocity(1:exp.vids(ii).nFrames);
     bv = sqrt(sum(exp.vids(ii).bodyVel .^2, 2));
@@ -57,7 +59,9 @@ for ii = 1:length(exp.vids)
     disp(['Number of frames without nose velocity: ' num2str(sum(isnan(nv)))]);
     lh = plot(exp.vids(ii).times(:), bv, exp.vids(ii).times(:), nv); 
     set(lh(2), 'LineWidth', 1);%plot(exp.vids(ii).times(:), bv);
-    disp(['Total frames: ' num2str(exp.vids(ii).nFrames)]);
+    disp(['Total frames: ' num2str(nf)]);
+    disp(['Percent without nose: ' num2str(sum(isnan(np(:,1)))./nf*100)]);
+    disp(['Percent without nose velocity: ' num2str(sum(isnan(nv)./nf*100))]);
     %exp.vids(ii).fcPeriod = 60;
     %exp.vids(ii).isMissingFrame();
     %exp.vids(ii).plotNosePosition([]);
@@ -84,7 +88,7 @@ for ii = 1:length(exp.resp)
     subplot (3, ceil(length(exp.vids)/3), ii);
     plot(noseVel, freq, 'bo');
     hold on; plot(bodyVel, freq,'gx');
-    xlim([0 15]);
+    xlim([0 7]);
     figure(f2);
     subplot(3, ceil(length(exp.vids)/3), ii);
     plot(1:15, 1:15,'k--'); hold on;

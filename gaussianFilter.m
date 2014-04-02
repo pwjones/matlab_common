@@ -7,7 +7,7 @@ function filt_trace = gaussianFilter(in_trace, stdg, varargin)
 % Default is filtfilt.
 
 if stdg ~= 0
-    if ~isempty(varargin)
+    if ~isempty(varargin) && strcmp(varargin{1}, 'conv');
         convb = 1;
     else
         convb = 0;
@@ -24,7 +24,7 @@ if stdg ~= 0
     end
     
     x = 1:length(in_trace);
-    figure; plot(x, in_trace, x, filt_trace);
+    %figure; plot(x, in_trace, x, filt_trace);
 else
     filt_trace = in_trace;
 end

@@ -1,4 +1,4 @@
-function [cm, inds] = getIndexedColors(cm_name, data, varargin)
+function [cm, inds, cvals] = getIndexedColors(cm_name, data, varargin)
 %function [cm, inds] = getIndexedColors(cm_name, data)
 %
 % So, this is the difficult way of getting color gradients for a
@@ -7,6 +7,10 @@ function [cm, inds] = getIndexedColors(cm_name, data, varargin)
 % that.
 % varargin{1} is beta if you want to brighten the colormap in a way that
 % preserves a good color granularity.
+% outputs: cm - colormap
+% inds - indices into colormap of data  
+% cvals - values corresponding to colormap
+% 
 
 if ~isempty(varargin)
     equalize = varargin{1};
@@ -25,6 +29,10 @@ dn = 2*length(data);
 %end
 cm = colormap(eval([cm_name '(' num2str(dn) ')']));
 inds = round((data - dmin)./(dmax-dmin) * (dn-1)) + 1;
+cvals = linspace(dmin, dmax, dn);
+%nn_data = ~isnan(data);
+%cvals = NaN*ones(size(data));
+%cvals(nn_data) = vals(inds(nn_data)); %essentially a resorting based on the ordered values
 
 if equalize % some extra steps if we want to stretch the colormap to best represent the data
     gm = colormap(eval(['gray(' num2str(dn) ')'])); 
