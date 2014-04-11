@@ -32,19 +32,9 @@ else
         end
     else
         parfor ii = 1:length(fnames)
+            disp(['In parfor loop: ' folder_path fnames{ii}]);
             vids(ii) = trackAndSave(tracker, folder_path, fnames{ii}, starts, ends, ii, saveFlag);
         end
     end
 end
 
-% ------------------------ Helper function ---------------------
-function vid = trackAndSave(tracker, folder_path, fname, starts, ends, ii, saveFlag)
-    if (starts(ii)==0 && ends(ii)==0) %the tag to just read the whole video. Leaving blank destroys file reading
-        vid = tracker([folder_path fname], []);
-    else
-        vid = tracker([folder_path fname], [], [starts(ii), ends(ii)]); %consider the given range
-    end
-    vid.mousePosition([]); %compute position in whole movie, as defined on opening
-    if saveFlag
-        vid.save(); %save tracking to mat file
-    end
