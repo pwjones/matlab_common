@@ -4,10 +4,10 @@
 
 mm_conv = 1.16; %mm/px linear
 thresh_dist = 20;
-traj_wind = -10:60;
+traj_wind = -15:60;
 exp_sniffDists = []; exp_followDists = [];
 exp_traj = []; exp_dir = []; exp_relSniffFrame = []; exp_relSniffDists=[];
-ns = 7; %number of sniffs to analyze
+ns = 8; %number of sniffs to analyze
 cm = jet(ns); %color to plot the sniff scatter plot in
 for ii = 1:length(exp.resp)
     exp.vids(ii).makePathsSkel();
@@ -32,7 +32,7 @@ for ii = 1:length(exp.resp)
     relSniffFrame = NaN*zeros(length(crossingFrames), ns);
     relSniffDists = NaN*zeros(length(crossingFrames), ns);
     for jj=1:length(crossingFrames) 
-        sniffBefore = find(sniffFrames <= crossingFrames(jj),3, 'last');
+        sniffBefore = find(sniffFrames <= crossingFrames(jj),4, 'last');
         if ~isempty(sniffBefore)
             si = sniffBefore(1):(sniffBefore(1)+ns-1);
             if sum(si > length(sniffFrames)) %check for array overrun 
@@ -53,9 +53,25 @@ main_ax = axes('Position', [.1 .1 .6 .6]); hold on;
 right_ax = axes('Position', [.8 .1 .15 .6]); hold on;
 top_ax = axes('Position', [.1 .8 .6 .15]); hold on;
 dirs = [0,1];
+return_dir = [-1, 1];
 traj_wind = traj_wind / exp.vids(1).frameRate * 1000; %convert to ms
+sel_time = [0 500];
 for ii=1:length(dirs)
-    mean_traj = nanmean(exp_traj(exp_dir == dirs(ii),:));
+    curr_dir = exp_dir == dirs(ii);
+    mean_traj = nanmean(exp_traj(curr_dir,:));
+    % select trials to see that have a direction change within 500ms
+    sel_traj = exp_traj(curr_dir,:);
+    sel_ti = traj_wind >= sel_time(1) & traj_wind <= sel_time(2);
+    traj_prime = diff(sel_traj,1,2);
+    with_return = false(size(sel_traj,1),1);
+    for jj=1:size(sel_traj,1)
+        test = traj_prime(jj,sel_ti) .* return_dir(ii);
+        if sum(test>0) %there are any trajectories of the return dir
+            with_return(jj) = 1;
+        end
+    end
+    sel = false(size(sel_traj,1),1); sel(1:8:end) = 1;
+    hold on; plot(main_ax, traj_wind, sel_traj(with_return & sel,:), 'Color', [.4 .4 .4], 'Linewidth',.5);
     hold on; plot(main_ax, traj_wind, mean_traj, 'k', 'Linewidth',2);
 end
 plot(main_ax, traj_wind, zeros(size(traj_wind)), '--k', 'LineWidth', .5);
