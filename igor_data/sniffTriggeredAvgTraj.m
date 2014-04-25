@@ -24,6 +24,7 @@ for ii = 1:length(exp.resp)
     moving = noseVel_filt >= 50;
     movingInds = find(moving);
     [nose_traj, dirs, wind, crossingInds] = noseTrajectories(exp.vids(ii), traj_wind);
+    nose_traj = interpM(nose_traj',4); nose_traj = nose_traj';
     [crossingFrames, cinds] = intersect(crossingInds, movingInds); %now the frames when moving and crossing
     nose_traj = mm_conv * nose_traj(cinds, :); dirs = dirs(cinds);
     sniffFrames = exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs);
