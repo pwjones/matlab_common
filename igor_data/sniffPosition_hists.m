@@ -5,7 +5,7 @@ f1= figure;
 all_sniffDists = []; all_followDists = [];
 thresh_dist = 20;
 for ii = 1:length(exp.resp)
-    exp.vids(ii).makePathsFull();
+    exp.vids(ii).makePathsSkel();
     % Velocities
     noseVel = exp.vids(ii).noseVel * mm_conv * exp.vids(ii).frameRate; %get the nose/body velocities
     nosePos = exp.vids(ii).nosePos ;
