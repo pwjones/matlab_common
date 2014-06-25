@@ -2,7 +2,7 @@ function plotEmpiricalCDF(obs, step, colors, styles, varargin)
 %function plotEmpiricalCDF(obs, colors, numSets)
 %
 % Varargin - 1) plot axis
-
+alpha = 1; %transparency
 num_sets = numel(obs);
 
 if ~isempty(varargin)
@@ -20,7 +20,7 @@ for ii=1:num_sets
         plot(ah, [pse pse], [0 f(fi)], 'Linestyle', '--', 'Color', colors{ii});
         text('Parent', ah, 'Position', [pse-.1 .6], 'String', num2str(pse)); 
     end
-    plot_err_poly(ah, x, f, f-flo, colors{ii}, ([1 1 1] + colors{ii})/2, .5);
+    plot_err_poly(ah, x, f, f-flo, colors{ii}, ([1 1 1] + colors{ii})/2, alpha);
 %     ds = obs{ii};
 %     minv = nanmin(ds); maxv = nanmax(ds);
 %     valrange = floor(minv):step:ceil(maxv);

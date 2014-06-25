@@ -40,9 +40,6 @@ for ii = 1:length(exp.resp)
     adj_t = exp.vids(ii).times(crossingFrames) - (upn-adj_i)/(upn*exp.vids(ii).frameRate);
     crossing_resp_i = indicesFromTimes(exp.resp(ii).vidTime, adj_t);
     sp = sniffphase(crossing_resp_i);
-    %phase_inds = exp.camTrig(ii).frameInds(crossingFrames + double(exp.camTrig(ii).vidStartFrame) - 1);
-    %sp = sniffphase(phase_inds);
-    %res_dists = exp.vids(ii).orthogonalDistFromTrail(crossingFrames, 1);
     exp_sniff_phase = cat(1, exp_sniff_phase, sp); exp_res_dists =  cat(1, exp_res_dists, res_dists');
 end
 

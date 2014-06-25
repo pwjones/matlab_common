@@ -29,4 +29,5 @@ for ii=1:length(exp.resp)
     exp.resp(ii).sniffPos = NaN * zeros(exp.resp(ii).nSniffDuringVid,2); 
     exp.resp(ii).sniffPos = exp.vids(ii).nosePos(exp.resp(ii).sniffFrames(vsi),:);
     exp.resp(ii).vidTime = exp.resp(ii).time - exp.resp(ii).time(exp.camTrig(ii).analyzedFrameInds(1));
+    exp.resp(ii).vidSniffTimes = exp.resp(ii).sniffTimes - exp.resp(ii).time(exp.camTrig(ii).analyzedFrameInds(1));
 end
