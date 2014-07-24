@@ -1,5 +1,5 @@
 function plotEmpiricalCDF(obs, step, colors, styles, varargin)
-%function plotEmpiricalCDF(obs, colors, numSets)
+%function plotEmpiricalCDF(obs, step, colors, styles, varargin)
 %
 % Varargin - 1) plot axis
 alpha = 1; %transparency

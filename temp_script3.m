@@ -18,21 +18,21 @@ end
 
 %%
 % Let's plot  
-vidi = 1:length(vids);
+vidi = 11:length(vids);
 %vidi = 1:2;
 %vidi = 24:28;
 for ii = 1:length(vidi)
     %exp.vids(ii).plotNosePosition([]);
-    %vids(ii).plotPosition([]);
-    vids(ii).plotFollowing([],15,'');
+    vids(ii).plotPosition([]);
+    %vids(ii).plotFollowing([],15,'');
     %exp.vids(ii).plotPosition([exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs)], ah, 0, 'b', '.');
 end
 %%
-for ii = 1:length(exp.vids)
-    disp(exp.vids(ii).videoFN);
-    exp.vids(ii).blobID(100,:)
+for ii = 1:length(vids)
+    disp(vids(ii).videoFN);
+    %exp.vids(ii).blobID(100,:)
     %exp.vids(ii).fcPeriod = 60;
-    exp.vids(ii).save;
+    vids(ii).save;
     
 end
 
