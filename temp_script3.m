@@ -18,7 +18,7 @@ end
 
 %%
 % Let's plot  
-vidi = 11:length(vids);
+vidi = 1:length(vids);
 %vidi = 1:2;
 %vidi = 24:28;
 for ii = 1:length(vidi)
