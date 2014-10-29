@@ -20,21 +20,25 @@ if ~exist(ind_name, 'file')
 else
     starts = []; ends = [];
     fid = fopen(ind_name, 'r');
-    res = textscan(fid, '%s [%d %d]');
-    fnames = res{1};
-    starts = res{2};
-    ends = res{3};
-    
-    s = matlabpool('size');
-    if s==0 %check if parallel toolbox is running.  If not, just do regular for loop
-        for ii = 1:length(fnames)
-            vids(ii) = trackAndSave(tracker, folder_path, fnames{ii}, starts, ends, ii, saveFlag);
+    if fid ~= -1
+        res = textscan(fid, '%s [%d %d]');
+        fnames = res{1};
+        starts = res{2};
+        ends = res{3};
+
+        s = matlabpool('size');
+        if s==0 %check if parallel toolbox is running.  If not, just do regular for loop
+            for ii = 1:length(fnames)
+                vids(ii) = trackAndSave(tracker, folder_path, fnames{ii}, starts, ends, ii, saveFlag);
+            end
+        else
+            parfor ii = 1:length(fnames)
+                disp(['In parfor loop: ' folder_path fnames{ii}]);
+                vids(ii) = trackAndSave(tracker, folder_path, fnames{ii}, starts, ends, ii, saveFlag);
+            end
         end
     else
-        parfor ii = 1:length(fnames)
-            disp(['In parfor loop: ' folder_path fnames{ii}]);
-            vids(ii) = trackAndSave(tracker, folder_path, fnames{ii}, starts, ends, ii, saveFlag);
-        end
+        disp('There was a problem opening the file');
     end
 end
 

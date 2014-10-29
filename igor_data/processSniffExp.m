@@ -15,7 +15,7 @@ expFN = [expFilename, '.h5'];
 % Setting initial vars
 respSignal =  'Thermocouple';
 %tracker = @MouseTrackerUnder2;
-tracker = @MouseTrackerKF
+tracker = @MouseTrackerKF;
 % Filter lengths, now in time units
 median_filt_len = 3e-3; %median filter time in sec
 hp_len = 40e-3; % high-pass filter the signal to remove baseline fluctuations, sec 
@@ -67,7 +67,7 @@ for ii = 1:length(vids)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%Camera trigger pulse segment %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-camSignal = 'Camera';
+camSignal = 'CameraOut';
 %vids= [];
 camTrig = readIgorH5file(expFN, camSignal, 0, 0);
 % loop to find the frame indices - more explicitly the first sample of each high pulse in the trigger signal 
