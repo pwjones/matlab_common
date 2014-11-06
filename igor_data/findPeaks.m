@@ -32,7 +32,6 @@ while ( ~done )
         %found a threshold crossing; now find the peak value within
         % the given window
         spike_start = i;
-        %spike_peak = i;
         peak_val = signal(i);
 %         while ( (i<(spike_start+peak_window)) & (i <= n_pts)  ...
 %                 &  (signal(i)>thresdw) )
@@ -42,8 +41,8 @@ while ( ~done )
 %             end;
 %             i = i + 1;
 %         end;
-        win_end = min(n_pts, i+peak_window);
-        [peak_val, spike_peak] = max(signal(i:win_end));
+        win_end = min(n_pts, i+peak_window); %look ahead
+        [peak_val, spike_peak] = max(signal(i:win_end)); 
         spike_peak = spike_peak+i;
         peakTimes(spike_peak) = 1;
         spknum = spknum+1;
@@ -60,7 +59,8 @@ while ( ~done )
 %             spknum = spknum+1;
 %             eventVects(spknum,:) = signal(spike_peak-peak_window:spike_peak+peak_window);
 %         end;
-        i = spike_start+peak_window;
+        %i = spike_start+peak_window; %this allows events to be spaced too closely
+        i = spike_peak+(peak_window/2);
     end;
 end;
 

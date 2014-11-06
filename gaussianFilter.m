@@ -17,12 +17,16 @@ if stdg ~= 0
     filty = normpdf(filtx,0,stdg);
     filty = filty/sum(filty);
 
-    if convb %there is a better way to do this, but since they have different args, this is easy
-        filt_trace = conv2(in_trace(:), filty(:), 'same');
+    if length(in_trace) >= 3*length(filtx)
+        if convb %there is a better way to do this, but since they have different args, this is easy
+            filt_trace = conv2(in_trace(:), filty(:), 'same');
+        else
+            filt_trace = filtfilt(filty, 1, in_trace);
+        end
     else
-        filt_trace = filtfilt(filty, 1, in_trace);
+        disp('Unable to filter - input must be 3x longer than filter');
+        filt_trace = in_trace;
     end
-    
     x = 1:length(in_trace);
     %figure; plot(x, in_trace, x, filt_trace);
 else

@@ -15,6 +15,7 @@ if nargin>1
 else
     match_str = [];
 end
+ts = {};
 if sort_by_timestamp
     match_str = ['*' match_str '*'];
     files = dir([base_folder, filesep, folder, filesep, match_str]);
@@ -23,9 +24,9 @@ if sort_by_timestamp
     for i=1:length(files)
         name = files(i).name;
         [~, name] = strtok(name, delim);
-        timestamp{i} = strtok(name, '._');
+        ts{i} = strtok(name, '._');
     end
-    [~, sorti] = sort(timestamp);
+    [~, sorti] = sort(ts);
     files = files(sorti);
 end
 for i=1:length(files)

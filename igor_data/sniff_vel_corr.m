@@ -7,7 +7,8 @@ all_freq = []; all_noseVel_filt = []; all_noseVel = [];
 mov_thresh = 50;
 for ii = 1:length(exp.resp)
     % select the frames to analyze - when the animal is following the trail
-    sniffFrames = exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs);
+    %sniffFrames = exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs);
+    sniffFrames = 1:exp.vids(ii).nFrames;
     sniffDists = exp.vids(ii).orthogonalDistFromTrail(sniffFrames, 1);
     followi = sniffDists <= 20 & sniffDists >= -20;
     sniffFrames = sniffFrames(followi); 

@@ -17,7 +17,7 @@ respSignal =  'Thermocouple';
 %tracker = @MouseTrackerUnder2;
 tracker = @MouseTrackerKF;
 % Filter lengths, now in time units
-median_filt_len = 3e-3; %median filter time in sec
+median_filt_len = 5e-3; %median filter time in sec
 hp_len = 40e-3; % high-pass filter the signal to remove baseline fluctuations, sec 
 %median_filt_len = 30; % number of samples to median filter over - denoise the signal a little
 %hp_len = 400; % high-pass filter the signal to remove baseline fluctuations, # of samples 
@@ -80,7 +80,7 @@ led = readIgorH5file(expFN, ledStr, 0, 0);
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%Load the respiration data from a thermocouple %%%%%%%%%%%%%%%%%%%%
-resp = readIgorH5file(expFN, respSignal, median_filt_len, hp_len);
+resp = readIgorH5file(expFN, respSignal, median_filt_len, hp_len, 1);
 resp = computeSniffTimes(resp);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%% Select particular trials if necessary %%%%%%%%%%%%%%%%%%%%%%%%%%

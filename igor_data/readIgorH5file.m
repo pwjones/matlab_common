@@ -1,4 +1,4 @@
-function data = readIgorH5file(filename, signalName, medfilt_len, hp_std)
+function data = readIgorH5file(filename, signalName, medfilt_len, hp_std, varargin)
 % function data = readIgorH5file(filename, signalName)
 % 
 % Reads an HDF5 exported Igor experiment file for the traces (sweeps) of a
@@ -7,7 +7,11 @@ function data = readIgorH5file(filename, signalName, medfilt_len, hp_std)
 % RecordingArtist package for experimental control
 %
 % Both 
-
+if nargin > 4
+    gauss_std = varargin{1};
+else 
+    gauss_std = 0;
+end
 basepath = ['/root/' signalName];
 if (~exist(filename, 'file'))
     error('File given does not exist');
@@ -79,7 +83,7 @@ if length(new_sweeps) ~= length(data)
 end
 
 % Now we can filter if we want, now that things are properly concatenated
-if (medfilt_len || hp_std)
+if (medfilt_len || hp_std || gauss_std)
     data(1).value_filt = [];
     for ii =1:length(data)
         mf_samp_len = medfilt_len / data(ii).dt; %set the lengths in # of samples
@@ -90,6 +94,9 @@ if (medfilt_len || hp_std)
         if hp_std
             baseline = gaussianFilter(data(ii).value_filt, hp_samp_std); 
             data(ii).value_filt = data(ii).value_filt - baseline;
+        end
+        if gauss_std
+            data(ii).value_filt = gaussianFilter(data(ii).value_filt, gauss_std);
         end
     end
 end

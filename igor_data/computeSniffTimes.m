@@ -7,11 +7,11 @@ if (pb) figure; end
 medFilt_len = 50; %10k sample rate, 5ms smoothing
 hp_std = 300;
 signal_name = 'Thermocouple'; %probably always Thermocouple or Pressure
-thresh_sd = 4; %number of standard deviations to be considered a sniff
+thresh_sd = 3; %number of standard deviations to be considered a sniff
 %filter parameters
 sniff_filt_len = 100e-3; %gaussian to produce a sniff frequency vector, std in sec
 hp_filt_len = 5e-3; %filter length for noise estimation, empirical, in s
-peak_window = 60e-3; %window for detecting sniff peaks, necessary for peak finding algorithm but sets
+peak_window = 40e-3; %window for detecting sniff peaks, necessary for peak finding algorithm but sets
                      % upper bound on detected frequency.
 
 %sweepStruct = readIgorH5file(expFilename, signal_name, medFilt_len, hp_std);
@@ -40,7 +40,7 @@ for ii=1:length(sweepStruct)
     noise = trace(filt_inds) - filt_trace;
     noise_sd = std(noise(:)); % this is the value we wanted
     
-    [sniff_delta, sniffs] = findPeaks(trace, noise_sd * thresh_sd, -1, peak_window / dt);
+    sniff_delta = findPeaks2(trace, noise_sd * thresh_sd, -1, peak_window / dt);
     %[sniff_delta, sniffs] = findPeaks(trace, abs(nanmin(trace))*.3, -1);
     sniff_bool = logical(sniff_delta);
     sniffy = trace(sniff_bool);

@@ -16,8 +16,7 @@ for ii=1:length(exp.resp)
     exp.resp(ii).sniff_pos = exp.vids(ii).nosePos(sniffFrames,:);
 end
 
-%%
-% Let's plot  
+%% Plot the mouse positions
 vidi = 1:length(vids);
 %vidi = 1:2;
 %vidi = 24:28;
@@ -27,7 +26,7 @@ for ii = 1:length(vidi)
     %vids(ii).plotFollowing([],15,'');
     %exp.vids(ii).plotPosition([exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs)], ah, 0, 'b', '.');
 end
-%%
+%% Just print the video file names
 for ii = 1:length(vids)
     disp(vids(ii).videoFN);
     %exp.vids(ii).blobID(100,:)
@@ -35,7 +34,14 @@ for ii = 1:length(vids)
     vids(ii).save;
     
 end
-
+%% Clear the tracked points that are actually LED
+for ii = 1:length(vids)
+    np = vids(ii).nosePos;
+    corner = np(:,1) >= 1206 & np(:, 2) >= 954;
+    vids(ii).nosePos(np, :) = [NaN NaN];
+    vids(ii).computeVelocity([]);
+    vids(ii).save;
+end
 
 %% Plot the velocities of the body and nose
 figure; 
