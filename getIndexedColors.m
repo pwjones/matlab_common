@@ -18,13 +18,14 @@ elseif nargin >= 3
 end
 if nargin >= 4
     range = varargin{2};
-    dmin = range(1);
-    dmax = range(2);
+    dmin = nanmin(data);
+    dmax = nanmax(data);
     dn = 512;
 else    
     dmin = nanmin(data);
     dmax = nanmax(data);
     dn = 2*length(data);
+    range = [dmin dmax];
 end
 %dn = 256;
 %if ~isempty(beta)

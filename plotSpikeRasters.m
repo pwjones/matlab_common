@@ -5,7 +5,7 @@ function rh = plotSpikeRasters(axis_h, time, spikes, position)
  
 ntrials = size(spikes,1);
 spksize = size(spikes);
-rh = zeros(nansum2(nansum2(spikes)), 1);
+rh = zeros(nansum(nansum(spikes)), 1);
 count = 1;
 for i=1:ntrials
     y_vect = [(i) (i+0.9)] + position;
@@ -16,6 +16,7 @@ for i=1:ntrials
           t_val = time(spki(m));
           rh_temp = line('Parent',axis_h,'XData',[t_val t_val],...
               'YData',y_vect,'Tag','single_spike', 'LineWidth', 1);
+          %rh_temp = plot(axis_h, [t_val t_val], y_vect);
           rh(count) =rh_temp;
           count = count + 1;
         end;

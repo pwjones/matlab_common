@@ -18,11 +18,11 @@ end
 
 %% Plot the mouse positions
 vidi = 1:length(vids);
-%vidi = 1:2;
+vidi = 1:25;
 %vidi = 24:28;
 for ii = 1:length(vidi)
     %exp.vids(ii).plotNosePosition([]);
-    vids(ii).plotPosition([]);
+    vids(ii).plotNosePosition([]);
     %vids(ii).plotFollowing([],15,'');
     %exp.vids(ii).plotPosition([exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs)], ah, 0, 'b', '.');
 end
@@ -41,36 +41,6 @@ for ii = 1:length(vids)
     vids(ii).nosePos(np, :) = [NaN NaN];
     vids(ii).computeVelocity([]);
     vids(ii).save;
-end
-
-%% Plot the velocities of the body and nose
-figure; 
-for ii = 1:length(exp.vids)
-    subplot (3, ceil(length(exp.vids)/3), ii);
-    bc = exp.vids(ii).bodyCOM;
-    lh = plot(bc(:,1), bc(:,2)); 
-end
-
-figure; 
-for ii = 1:length(exp.vids)
-    subplot (3, ceil(length(exp.vids)/3), ii);
-    %np = exp.vids(ii).findNose(1:exp.vids(ii).nFrames);
-    np = exp.vids(ii).nosePos;
-    nf = exp.vids(ii).nFrames;
-    disp('\n');
-    disp(['Number of frames without nose: ' num2str(sum(isnan(np(:,1))))]);
-    exp.vids(ii).computeVelocity(1:exp.vids(ii).nFrames);
-    bv = sqrt(sum(exp.vids(ii).bodyVel .^2, 2));
-    nv = sqrt(sum(exp.vids(ii).noseVel.^2, 2));
-    disp(['Number of frames without nose velocity: ' num2str(sum(isnan(nv)))]);
-    lh = plot(exp.vids(ii).times(:), bv, exp.vids(ii).times(:), nv); 
-    set(lh(2), 'LineWidth', 1);%plot(exp.vids(ii).times(:), bv);
-    disp(['Total frames: ' num2str(nf)]);
-    disp(['Percent without nose: ' num2str(sum(isnan(np(:,1)))./nf*100)]);
-    disp(['Percent without nose velocity: ' num2str(sum(isnan(nv)./nf*100))]);
-    %exp.vids(ii).fcPeriod = 60;
-    %exp.vids(ii).isMissingFrame();
-    %exp.vids(ii).plotNosePosition([]);
 end
 
 %% Look at the correlation between velocity (body and nose) with sniff frequency
@@ -218,3 +188,37 @@ end
  figure; colormap(cm);
  pcolor([meanlum, meanlum]);
  colorbar;
+ 
+ 
+ %% Plot the velocities of the body and nose
+figure; 
+for ii = 1:length(vids)
+    subplot (3, ceil(length(vids)/3), ii);
+    bc = vids(ii).bodyCOM;
+    np = vids(ii).nosePos;
+    lh = plot(bc(:,1), bc(:,2)); 
+    hold on; lh2 = plot(np(:,1), np(:,2), 'Color', [0 .7 0]); 
+end
+
+figure; 
+for ii = 1:length(vids)
+    subplot (3, ceil(length(vids)/3), ii);
+    %np = vids(ii).findNose(1:vids(ii).nFrames);
+    np = vids(ii).nosePos;
+    nf = vids(ii).nFrames;
+    disp('\n');
+    disp(['Number of frames without nose: ' num2str(sum(isnan(np(:,1))))]);
+    vids(ii).computeVelocity(1:vids(ii).nFrames);
+    bv = sqrt(sum(vids(ii).bodyVel .^2, 2));
+    nv = sqrt(sum(vids(ii).noseVel.^2, 2));
+    disp(['Number of frames without nose velocity: ' num2str(sum(isnan(nv)))]);
+    lh = plot(vids(ii).times(:), bv, vids(ii).times(:), nv); 
+    set(lh(2), 'LineWidth', 1);%plot(vids(ii).times(:), bv);
+    disp(['Total frames: ' num2str(nf)]);
+    disp(['Percent without nose: ' num2str(sum(isnan(np(:,1)))./nf*100)]);
+    disp(['Percent without nose velocity: ' num2str(sum(isnan(nv)./nf*100))]);
+    %vids(ii).fcPeriod = 60;
+    %vids(ii).isMissingFrame();
+    %vids(ii).plotNosePosition([]);
+end
+ 

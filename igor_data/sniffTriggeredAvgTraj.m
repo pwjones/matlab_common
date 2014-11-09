@@ -3,12 +3,12 @@
 % Script, assumes that exp structure is loaded
 
 mm_conv = 1.16; %mm/px linear
-thresh_dist = 20;
-traj_wind = -30:60;
+thresh_dist = 25;
+traj_wind = -30:60; 
 exp_sniffDists = []; exp_followDists = [];
 exp_traj = []; exp_dir = []; exp_relSniffTime = []; exp_relSniffDists=[];
 ns = 8; %number of sniffs to analyze
-upn = 4; %how much to upsample the nose position data, x per sample
+upn = 10; %how much to upsample the nose position data, x per sample
 long_wind = (min(traj_wind)*upn):(max(traj_wind)*upn);
 cm = jet(ns); %color to plot the sniff scatter plot in
 for ii = 1:length(exp.resp)
@@ -17,8 +17,8 @@ for ii = 1:length(exp.resp)
     noseVel = exp.vids(ii).noseVel * mm_conv * exp.vids(ii).frameRate; %get the nose/body velocities
     nosePos = interpM(mm_conv * exp.vids(ii).nosePos, upn);
     bodyVel = exp.vids(ii).bodyVel(:,1) * mm_conv * exp.vids(ii).frameRate;
-    noseVel_filt = interp(gaussianFilter(noseVel, 3, 'conv'), upn); %smoother versions - vels tend to look messy
-    bodyVel_filt = interp(gaussianFilter(bodyVel, 3, 'conv'), upn);
+    noseVel_filt = interp(gaussianFilter(noseVel, 2, 'conv'), upn); %smoother versions - vels tend to look messy
+    bodyVel_filt = interp(gaussianFilter(bodyVel, 2, 'conv'), upn);
     sniffphase = assignSniffPhase(exp.resp(ii).sniffVect);
     % select the frames to analyze - when the animal is following the trail
     % selection criteria
@@ -27,8 +27,8 @@ for ii = 1:length(exp.resp)
     followAll = abs(allDists) <= thresh_dist;
     moving = noseVel_filt >= 50;    movingInds = find(moving);
     % Get the trajectories of the nose relative to the trail
-    [nose_traj, dirs, wind, crossingInds] = noseTrajectories(exp.vids(ii), traj_wind); %upsample 
-    nose_traj = interpM(nose_traj',upn); nose_traj = nose_traj';
+    [nose_traj, dirs, wind, crossingInds] = noseTrajectories(exp.vids(ii), traj_wind); 
+    nose_traj = interpMatrix(nose_traj',upn); nose_traj = nose_traj'; %upsample - interpolate the position
     [crossingFrames, cinds] = intersect(crossingInds, movingInds); %now the frames when moving and crossing
     nose_traj = mm_conv * nose_traj(cinds, :); dirs = dirs(cinds);
     exp_traj = cat(1, exp_traj, nose_traj); exp_dir = cat(1,exp_dir, dirs);
@@ -49,7 +49,7 @@ for ii = 1:length(exp.resp)
         sniffBefore = find(sniffTimes <= adj_t(jj),4, 'last');
         if ~isempty(sniffBefore)
             si = sniffBefore(1):(sniffBefore(1)+ns-1);
-            if sum(si > length(sniffFrames)) %check for array overrun 
+            if sum(si > length(sniffTimes)) %check for array overrun 
                 break;
             end
             relSniffTime(jj,:) = sniffTimes(si) - adj_t(jj);
@@ -61,8 +61,9 @@ for ii = 1:length(exp.resp)
     exp_relSniffDists = cat(1, exp_relSniffDists, relSniffDists);
     
 end
+exp_wind = exp_wind / exp.vids(1).frameRate * 1000; %convert to ms
 
-% One complicated figure.
+%% One complicated figure.
 % Main axis - individual nose trajectories (distances from trail) in grey, averaged in black.  Sniff
 % positions and times as colored points overlaid to visualize when and where the animals sniffs.
 % Top axis - the marginal distribution of sniffing times
@@ -71,10 +72,10 @@ f1= figure;
 main_ax = axes('Position', [.1 .1 .6 .6]); hold on;
 right_ax = axes('Position', [.8 .1 .15 .6]); hold on;
 top_ax = axes('Position', [.1 .8 .6 .15]); hold on;
-dirs = [0,1];
+dirs = [0,1]; dirc = {[.4 0 .4], [0 .4 .4]};
 return_dir = [-1, 1];
-exp_wind = exp_wind / exp.vids(1).frameRate * 1000; %convert to ms
-sel_time = [0 500];
+hist_tbin = long_wind;
+sel_time = [0 50];
 for ii=1:length(dirs)
     curr_dir = exp_dir == dirs(ii);
     mean_traj = nanmean(exp_traj(curr_dir,:));
@@ -89,18 +90,22 @@ for ii=1:length(dirs)
             with_return(jj) = 1;
         end
     end
-    sel = false(size(sel_traj,1),1); sel(1:8:end) = 1;
-    hold on; plot(main_ax, exp_wind, sel_traj(with_return & sel,:), 'Color', [.4 .4 .4], 'Linewidth',.5);
+    sel = false(size(sel_traj,1),1); sel(1:5:end) = true;
+    hold on; plot(main_ax, exp_wind, sel_traj(with_return & sel,:), 'Color', dirc{ii}, 'Linewidth',.5);
     hold on; plot(main_ax, exp_wind, mean_traj, 'k', 'Linewidth',2);
 end
 plot(main_ax, exp_wind, zeros(size(exp_wind)), '--k', 'LineWidth', .5);
-for ii=1:ns
-    plot(main_ax, exp_relSniffTime(:,ii), exp_relSniffDists(:,ii), '.', 'Color', cm(ii,:));
-end
-topy = histc(exp_relSniffTime(:), exp_wind);
-bar(top_ax, exp_wind, topy, 'r');
+%for ii=1:ns
+%    plot(main_ax, exp_relSniffTime(:,ii), exp_relSniffDists(:,ii), '.', 'Color', cm(ii,:));
+%end
+hist_bin = exp_wind(1:2:length(exp_wind));
+topy = histc(exp_relSniffTime(:), hist_bin);
+bar(top_ax, hist_bin, topy, 'r', 'EdgeColor', 'r', 'BarWidth', 1);
+%topy = histc(exp_relSniffTime(:), hist_tbin);
+%bar(top_ax, hist_tbin, topy, 'r');
+
 [sd, x] = hist(exp_relSniffDists(:), 40); 
-barh(right_ax, x,sd, 'r');
+barh(right_ax, x,sd, 'r', 'BarWidth', 1);
 set(main_ax, 'Xlim', [exp_wind(1) 1000], 'ylim', [-40 40]);
 set(top_ax, 'xlim', [exp_wind(1) 1000]);
 set(right_ax, 'ylim', [-40 40]);
@@ -135,3 +140,8 @@ geny = geny(1:end-1); geny_cdf = cumsum(geny(:));
 disp(['KS test for uniformity (random data): h = ' num2str(h) '   p = ' num2str(p)]);
 [h2,p2,ksstat2,cv2] = kstest(gen, [edges(:), expected_rand_cdf]);
 disp(['KS test for uniformity (random data): h = ' num2str(h2) '   p = ' num2str(p2)]);
+
+
+%% Trying to recreate the Khan et al result that before a crossing/turning you are different distances
+%  from the path.  
+
