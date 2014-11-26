@@ -34,7 +34,10 @@ end
 %    dn = length(data);
 %end
 cm = colormap(eval([cm_name '(' num2str(dn) ')']));
-inds = round((data - dmin)./(dmax-dmin) * (dn-1)) + 1;
+%inds = round((data - dmin)./(dmax-dmin) * (dn-1)) + 1;
+inds = round((data - range(1))./(range(2)-range(1)) * (dn-1)) + 1;
+inds(inds > dn) = dn; 
+inds(inds < 1) = 1;
 cvals = linspace(dmin, dmax, dn);
 %nn_data = ~isnan(data);
 %cvals = NaN*ones(size(data));

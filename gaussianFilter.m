@@ -7,19 +7,34 @@ function filt_trace = gaussianFilter(in_trace, stdg, varargin)
 % Default is filtfilt.
 
 if stdg ~= 0
-    if ~isempty(varargin) && strcmp(varargin{1}, 'conv');
+    if nargin >= 3 && strcmp(varargin{1}, 'conv');
         convb = 1;
     else
         convb = 0;
     end
+    if nargin >= 4 
+        len_flag = varargin{2};
+    else
+        len_flag = 'same';
+    end
     
-    filtx = -3*stdg:1:3*stdg;
+    half_len = ceil(stdg*3);
+    filtx = [-half_len:0, 1:half_len];
     filty = normpdf(filtx,0,stdg);
     filty = filty/sum(filty);
 
     if length(in_trace) >= 3*length(filtx)
         if convb %there is a better way to do this, but since they have different args, this is easy
-            filt_trace = conv2(in_trace(:), filty(:), 'same');
+            filt_trace = conv2(in_trace(:), filty(:), len_flag);
+            if length(filt_trace) ~= length(in_trace)
+                offset = floor(length(filtx)/2);
+                pad = NaN*zeros(offset,1);
+                filt_trace = cat(1, pad, filt_trace, pad);
+            end
+            if length(filt_trace) < length(in_trace)
+                filt_trace = cat(1, filt_trace, NaN);
+                %filt_trace = filt_trace(1:length(in_trace));
+            end
         else
             filt_trace = filtfilt(filty, 1, in_trace);
         end

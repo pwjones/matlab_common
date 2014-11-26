@@ -1,5 +1,5 @@
 %% Look at the correlation between velocity (body and nose) with sniff frequency
-mm_conv = 1.16; %mm/px linear
+mm_conv = .862; %mm/px linear
 f1= figure;
 f2 = figure;
 f3 = figure;

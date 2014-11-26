@@ -2,7 +2,7 @@ function [SF, NV, NV_filt, NA] = correlateSniffFreqVelocity(exp_struct)
 %% Look at the correlation between velocity (body and nose) with sniff frequency
 
 % analysis parameters
-mm_conv = 1.16; %mm/px linear
+mm_conv = .862; %mm/px linear
 followDistThresh = 20; %px
 
 all_freq = []; all_noseVel_filt = []; all_noseVel = [];

@@ -2,7 +2,7 @@
 % 
 % Script, assumes that exp structure is loaded
 
-mm_conv = 1.16; %mm/px linear
+mm_conv = .862; %mm/px linear
 thresh_dist = 20;
 traj_wind = -15:60;
 upn = 4;

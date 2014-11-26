@@ -2,7 +2,7 @@
 %
 % Script, assumes that exp structure is loaded
 
-mm_conv = 1.16; %mm/px linear
+mm_conv = .862; %mm/px linear
 thresh_dist = 25;
 traj_wind = -30:60; 
 exp_sniffDists = []; exp_followDists = [];
@@ -93,11 +93,15 @@ for ii=1:length(dirs)
     sel = false(size(sel_traj,1),1); sel(1:5:end) = true;
     hold on; plot(main_ax, exp_wind, sel_traj(with_return & sel,:), 'Color', dirc{ii}, 'Linewidth',.5);
     hold on; plot(main_ax, exp_wind, mean_traj, 'k', 'Linewidth',2);
+    sel_relSniffTime = exp_relSniffTime(:,ii)
+    for ii=1:ns
+        plot(main_ax, exp_relSniffTime(:,ii), exp_relSniffDists(:,ii), '.', 'Color', cm(ii,:));
+    end
 end
 plot(main_ax, exp_wind, zeros(size(exp_wind)), '--k', 'LineWidth', .5);
-%for ii=1:ns
+% for ii=1:ns
 %    plot(main_ax, exp_relSniffTime(:,ii), exp_relSniffDists(:,ii), '.', 'Color', cm(ii,:));
-%end
+% end
 hist_bin = exp_wind(1:2:length(exp_wind));
 topy = histc(exp_relSniffTime(:), hist_bin);
 bar(top_ax, hist_bin, topy, 'r', 'EdgeColor', 'r', 'BarWidth', 1);

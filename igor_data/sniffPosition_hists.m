@@ -1,6 +1,6 @@
 %% Script to look at the distribution of sniff positions relative to the trail.
 
-mm_conv = 1.16; %mm/px linear
+mm_conv = .862; %mm/px linear
 f1= figure;
 all_sniffDists = []; all_followDists = [];
 thresh_dist = 20;

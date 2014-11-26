@@ -190,7 +190,7 @@ end
  colorbar;
  
  
- %% Plot the velocities of the body and nose
+ %% Plot the velocities of the body and nose                                                                                                                                                                                                                                                                                                                                                                                                                          
 figure; 
 for ii = 1:length(vids)
     subplot (3, ceil(length(vids)/3), ii);
