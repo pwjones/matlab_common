@@ -3,8 +3,8 @@
 % Script, assumes that exp structure is loaded
 
 mm_conv = .862; %mm/px linear
-thresh_dist = 25;
-traj_wind = -30:60; 
+thresh_dist = 20;
+traj_wind = -30:30; 
 exp_sniffDists = []; exp_followDists = [];
 exp_traj = []; exp_dir = []; exp_relSniffTime = []; exp_relSniffDists=[];
 ns = 8; %number of sniffs to analyze
@@ -17,42 +17,42 @@ for ii = 1:length(exp.resp)
     noseVel = exp.vids(ii).noseVel * mm_conv * exp.vids(ii).frameRate; %get the nose/body velocities
     nosePos = interpM(mm_conv * exp.vids(ii).nosePos, upn);
     bodyVel = exp.vids(ii).bodyVel(:,1) * mm_conv * exp.vids(ii).frameRate;
-    noseVel_filt = interp(gaussianFilter(noseVel, 2, 'conv'), upn); %smoother versions - vels tend to look messy
-    bodyVel_filt = interp(gaussianFilter(bodyVel, 2, 'conv'), upn);
-    sniffphase = assignSniffPhase(exp.resp(ii).sniffVect);
-    % select the frames to analyze - when the animal is following the trail
-    % selection criteria
+    noseVel_filt = interp(gaussianFilter(noseVel, 1.5, 'conv'), upn); %smoother versions - vels tend to look messy
+    bodyVel_filt = interp(gaussianFilter(bodyVel, 1.5, 'conv'), upn);
+    sniffphase = assignSniffPhase(exp.resp(ii).sniffVect); %this line doesn't work
+  
     odist = double(mm_conv * exp.vids(ii).orthogonalDistFromTrail(1:exp.vids(ii).nFrames, 1));
     allDists = interp(odist, upn);
-    followAll = abs(allDists) <= thresh_dist;
-    moving = noseVel_filt >= 50;    movingInds = find(moving);
     % Get the trajectories of the nose relative to the trail
-    [nose_traj, dirs, wind, crossingInds] = noseTrajectories(exp.vids(ii), traj_wind); 
-    nose_traj = interpMatrix(nose_traj',upn); nose_traj = nose_traj'; %upsample - interpolate the position
-    [crossingFrames, cinds] = intersect(crossingInds, movingInds); %now the frames when moving and crossing
-    nose_traj = mm_conv * nose_traj(cinds, :); dirs = dirs(cinds);
+    [turningInds, dirs, nose_traj] = exp.vids(ii).findFollowingTurns([], 1, thresh_dist, traj_wind);
+    nose_traj = interpMatrix(nose_traj,upn); nose_traj = nose_traj'; %upsample - interpolate the position
+    %[crossingFrames, cinds] = intersect(turningInds, movingInds); %now the frames when moving and crossing
+    %nose_traj = mm_conv * nose_traj(cinds, :); dirs = dirs(cinds);
     exp_traj = cat(1, exp_traj, nose_traj); exp_dir = cat(1,exp_dir, dirs);
     %adjust the frame timings by the offset found through interpolation of positions 
     exp_wind = interp(traj_wind, upn);
     interp_wind = find(exp_wind >= 0 & exp_wind <= 1);
-    [res_dists, adj_i] = min(abs(nose_traj(:, interp_wind)'));
+    %[res_dists, adj_i] = min(abs(nose_traj(:, interp_wind)'));
     exp_t = interp(exp.vids(ii).times, upn); % longer time vector
-    adj_t = exp.vids(ii).times(crossingFrames) - (upn-adj_i)/(upn*exp.vids(ii).frameRate); %adjusted times
-    crossing_resp_i = indicesFromTimes(exp.resp(ii).vidTime, adj_t);
-    sp = sniffphase(crossing_resp_i);
+    
+    
+    %crossing_resp_i = indicesFromTimes(exp.resp(ii).vidTime, exp_t); % what?
+    %sp = sniffphase(crossing_resp_i);
     sniffTimes = exp.resp(ii).vidSniffTimes(exp.resp(ii).vidSniffs);
-    newCrossingInds = (crossingFrames-1)*upn + 1 - (upn-adj_i');
+    newTurningInds = (turningInds-1)*upn + 1;
+    newTurningTimes = exp_t(newTurningInds);
+    %newCrossingInds = (crossingFrames-1)*upn + 1 - (upn-adj_i');
     % want to build the distribution of sniff times and positions relative to crossing
-    relSniffTime = NaN*zeros(length(crossingFrames), ns);
-    relSniffDists = NaN*zeros(length(crossingFrames), ns);
-    for jj=1:length(crossingFrames) 
-        sniffBefore = find(sniffTimes <= adj_t(jj),4, 'last');
+    relSniffTime = NaN*zeros(length(newTurningInds), ns);
+    relSniffDists = NaN*zeros(length(newTurningInds), ns);
+    for jj=1:length(newTurningInds) 
+        sniffBefore = find(sniffTimes <= newTurningTimes(jj),4, 'last');
         if ~isempty(sniffBefore)
             si = sniffBefore(1):(sniffBefore(1)+ns-1);
             if sum(si > length(sniffTimes)) %check for array overrun 
                 break;
             end
-            relSniffTime(jj,:) = sniffTimes(si) - adj_t(jj);
+            relSniffTime(jj,:) = sniffTimes(si) - newTurningTimes(jj);
             relSniffDists(jj,:) = allDists(indicesFromTimes(exp_t,sniffTimes(si)));
         end
         
@@ -63,6 +63,24 @@ for ii = 1:length(exp.resp)
 end
 exp_wind = exp_wind / exp.vids(1).frameRate * 1000; %convert to ms
 
+%%
+% We should do some calculation for the Bhalla et al, turn-triggered difference of sniff position
+absDists = abs(exp_relSniffDists);
+distChange = diff(absDists, 1, 2);
+mean_distChange = nanmean(distChange);
+label = {'-4to-3', '-3to-2', '-2to-1', '-1to1', '1to2','2to3', '3to4'};
+dirs = [-1,1]; 
+figure; 
+for ii=1:length(dirs)
+    curr_dir = exp_dir == dirs(ii);
+    mean_distChange(ii,:) = nanmean(distChange(curr_dir,:));
+end
+bar(mean_distChange'); 
+set(gca, 'XTickLabel', label)
+xlabel('Sniff relative to turn');
+ylabel('Distance Change from center of trail');
+legend({'Rightward Turn', 'Leftward Turn'});
+
 %% One complicated figure.
 % Main axis - individual nose trajectories (distances from trail) in grey, averaged in black.  Sniff
 % positions and times as colored points overlaid to visualize when and where the animals sniffs.
@@ -72,33 +90,31 @@ f1= figure;
 main_ax = axes('Position', [.1 .1 .6 .6]); hold on;
 right_ax = axes('Position', [.8 .1 .15 .6]); hold on;
 top_ax = axes('Position', [.1 .8 .6 .15]); hold on;
-dirs = [0,1]; dirc = {[.4 0 .4], [0 .4 .4]};
+dirs = [-1,1]; dirc = {[.4 0 .4], [0 .4 .4]};
 return_dir = [-1, 1];
 hist_tbin = long_wind;
 sel_time = [0 50];
 for ii=1:length(dirs)
     curr_dir = exp_dir == dirs(ii);
     mean_traj = nanmean(exp_traj(curr_dir,:));
+    mean_sniff_dist = nanmean(exp_relSniffDists(curr_dir, :));
+    mean_sniff_time = nanmean(exp_relSniffTime(curr_dir, :));
     % select trials to see that have a direction change within 500ms
-    sel_traj = exp_traj(curr_dir,:);
-    sel_ti = exp_wind >= sel_time(1) & exp_wind <= sel_time(2);
-    traj_prime = diff(sel_traj,1,2);
-    with_return = false(size(sel_traj,1),1);
-    for jj=1:size(sel_traj,1)
-        test = traj_prime(jj,sel_ti) .* return_dir(ii);
-        if sum(test>0) %there are any trajectories of the return dir
-            with_return(jj) = 1;
-        end
-    end
-    sel = false(size(sel_traj,1),1); sel(1:5:end) = true;
-    hold on; plot(main_ax, exp_wind, sel_traj(with_return & sel,:), 'Color', dirc{ii}, 'Linewidth',.5);
+    sel_traj = exp_traj(curr_dir,:); %subset in the correct direction
+    
+    sel = false(size(sel_traj,1),1); %sel(1:40:end) = true;
+    %hold on; plot(main_ax, exp_wind, sel_traj(sel,:), 'Color', dirc{ii}, 'Linewidth',.5);
     hold on; plot(main_ax, exp_wind, mean_traj, 'k', 'Linewidth',2);
     sel_relSniffTime = exp_relSniffTime(:,ii);
-    for jj=1:ns
-        plot(main_ax, exp_relSniffTime(:,jj), exp_relSniffDists(:,jj), '.', 'Color', cm(jj,:));
+    % plot the sniff positions in a different color relative to the direction change
+    sel = false(size(curr_dir,1),1); %sel(1:10:end) = true;
+    sel = curr_dir & sel;
+    for jj=1:ns 
+        plot(main_ax, exp_relSniffTime(sel,jj), exp_relSniffDists(sel,jj), '.', 'Color', cm(jj,:));
+        plot(main_ax, mean_sniff_time(jj), mean_sniff_dist(jj), '.' , 'Color', cm(jj,:), 'MarkerSize', 12);
     end
 end
-plot(main_ax, exp_wind, zeros(size(exp_wind)), '--k', 'LineWidth', .5);
+plot(main_ax, exp_wind, zeros(size(exp_wind)), '--k', 'LineWidth', 1);
 % for ii=1:ns
 %    plot(main_ax, exp_relSniffTime(:,ii), exp_relSniffDists(:,ii), '.', 'Color', cm(ii,:));
 % end
@@ -108,11 +124,12 @@ bar(top_ax, hist_bin, topy, 'r', 'EdgeColor', 'r', 'BarWidth', 1);
 %topy = histc(exp_relSniffTime(:), hist_tbin);
 %bar(top_ax, hist_tbin, topy, 'r');
 
-[sd, x] = hist(exp_relSniffDists(:), 40); 
+dist_lim = [-20 20];
+[sd, x] = hist(exp_relSniffDists(:), 100); 
 barh(right_ax, x,sd, 'r', 'BarWidth', 1);
-set(main_ax, 'Xlim', [exp_wind(1) 1000], 'ylim', [-40 40]);
-set(top_ax, 'xlim', [exp_wind(1) 1000]);
-set(right_ax, 'ylim', [-40 40]);
+set(main_ax, 'Xlim', [exp_wind(1) exp_wind(end)], 'ylim',dist_lim,'YDir', 'reverse');
+set(top_ax, 'xlim', [exp_wind(1) exp_wind(end)]);
+set(right_ax, 'ylim', dist_lim, 'Ydir', 'reverse');
 xlabel(main_ax, 'Time relative to crossing');
 ylabel(main_ax, 'Distance from trail center (mm)');
 
