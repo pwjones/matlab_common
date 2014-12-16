@@ -1,4 +1,4 @@
-function plotEmpiricalCDF(obs, step, colors, styles, varargin)
+function [f, x] = plotEmpiricalCDF(obs, step, colors, styles, varargin)
 %function plotEmpiricalCDF(obs, step, colors, styles, varargin)
 %
 % Varargin - 1) plot axis
