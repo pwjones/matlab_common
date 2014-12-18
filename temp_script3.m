@@ -29,11 +29,20 @@ end
 %% Just print the video file names
 for ii = 1:length(vids)
     disp(vids(ii).videoFN);
-    %exp.vids(ii).blobID(100,:)
-    %exp.vids(ii).fcPeriod = 60;
-    vids(ii).save;
-    
+    disp(num2str(vids(ii).proportionFramesWithNose()));    
 end
+
+%% update the nose position
+vidi = 1:length(vids);
+for ii = vidi
+    for jj = 1:vids(ii).nFrames
+        if ~isnan(vids(ii).noseblob(jj))
+            vids(ii).nosePos(jj,:) = vids(ii).areas(jj,vids(ii).noseblob(jj)).Centroid;
+        end
+    end
+    vids(ii).save;
+end
+
 %% Clear the tracked points that are actually LED
 for ii = 1:length(vids)
     np = vids(ii).nosePos;
@@ -197,7 +206,8 @@ for ii = 1:length(vids)
     bc = vids(ii).bodyCOM;
     np = vids(ii).nosePos;
     lh = plot(bc(:,1), bc(:,2)); 
-    hold on; lh2 = plot(np(:,1), np(:,2), 'Color', [0 .7 0]); 
+    hold on; lh2 = plot(np(:,1), np(:,2), 'Color', [0 .7 0], 'Linewidth', 2); 
+    set(gca, 'YDir', 'reverse', 'Xlim', [0 1280], 'Ylim', [0 1024]);
 end
 
 figure; 
@@ -213,7 +223,7 @@ for ii = 1:length(vids)
     nv = sqrt(sum(vids(ii).noseVel.^2, 2));
     disp(['Number of frames without nose velocity: ' num2str(sum(isnan(nv)))]);
     lh = plot(vids(ii).times(:), bv, vids(ii).times(:), nv); 
-    set(lh(2), 'LineWidth', 1);%plot(vids(ii).times(:), bv);
+    set(lh(2), 'LineWidth', 1);
     disp(['Total frames: ' num2str(nf)]);
     disp(['Percent without nose: ' num2str(sum(isnan(np(:,1)))./nf*100)]);
     disp(['Percent without nose velocity: ' num2str(sum(isnan(nv)./nf*100))]);
