@@ -28,9 +28,19 @@ for ii = 1:length(vidi)
 end
 %% Just print the video file names
 for ii = 1:length(vids)
-    disp(vids(ii).videoFN);
-    disp(num2str(vids(ii).proportionFramesWithNose()));    
+    %disp(vids(ii).videoFN);
+    disp(num2str(vids(ii).proportionFramesWithNose()));
+    percent
 end
+
+%% redo the tracking on some of the files CAUTION - this will mess things up if run unintentionally
+vidi = 1:33
+for ii = vidi
+   vids(ii).clearCalcData;
+   vids(ii).p_mouse = 7e-4;
+   vids(ii).mousePosition([]);
+end
+
 
 %% update the nose position
 vidi = 1:length(vids);
@@ -123,25 +133,6 @@ for ii = 1:length(exp.vids)
         disp(sprintf('%s is missing a frame.', exp.vids(ii).videoFN));
     end
 end
-%% Let's try to look at the following and sniffing together.
-
-  ft = [3 4 6];
-  %ft = 7;
-  %fr = 330:900;
-  for ii = ft
-     fr = 1:exp.vids(ii).nFrames;
-     exp.vids(ii).plotFollowing(fr, 15,'');
-     fr = intersect(fr, exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs));
-     exp.vids(ii).plotNosePosition(fr, gca, 0, 'y', '.');
-  end
-  
- %% just get some paths
-
- vidi = 1:length(exp.vids);
- for ii = vidi
-        exp.vids(ii).detectRefinePaths(1,1,1);
-        exp.vids(ii).save();
- end
  
  %% just get some paths
  vidi = length(vids):-1:1;
@@ -202,7 +193,9 @@ end
  %% Plot the velocities of the body and nose                                                                                                                                                                                                                                                                                                                                                                                                                          
 figure; 
 for ii = 1:length(vids)
-    subplot (3, ceil(length(vids)/3), ii);
+    ah = subplot (3, ceil(length(vids)/3), ii);
+    im = vids(ii).plotPathsOnBg();
+    imshow(im); hold on;
     bc = vids(ii).bodyCOM;
     np = vids(ii).nosePos;
     lh = plot(bc(:,1), bc(:,2)); 
@@ -212,7 +205,9 @@ end
 
 figure; 
 for ii = 1:length(vids)
-    subplot (3, ceil(length(vids)/3), ii);
+    ah = subplot (3, ceil(length(vids)/3), ii);
+    im = vids(ii).plotPathsOnBg();
+    imshow(im); hold on;
     %np = vids(ii).findNose(1:vids(ii).nFrames);
     np = vids(ii).nosePos;
     nf = vids(ii).nFrames;
