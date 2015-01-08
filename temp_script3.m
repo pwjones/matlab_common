@@ -116,13 +116,17 @@ for ii = ft
     colorbar;
 end
 
+%%
+for ii = 1:length(vids)
+    vids(ii).bodyCOM = vids(ii).computeBodyPos(1:vids(ii).nFrames, 0); 
+end
 
 %%
-for ii = 1:length(exp.vids)
+for ii = 1:length(vids)
     %exp.vids(ii).detectPaths(1,1,1);
     %exp.vids(ii).refinePaths(1);
     %exp.vids(ii).refinePaths(2);
-    exp.vids(ii).save;
+    vids(ii).save;
 end
 
 %%
