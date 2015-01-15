@@ -18,12 +18,12 @@ end
 
 %% Plot the mouse positions
 vidi = 1:length(vids);
-vidi = 1:25;
+%vidi = 1:25;
 %vidi = 24:28;
 for ii = 1:length(vidi)
     %exp.vids(ii).plotNosePosition([]);
-    vids(ii).plotNosePosition([]);
-    %vids(ii).plotFollowing([],15,'');
+    %vids(ii).plotNosePosition([]);
+    vids(ii).plotFollowingSide([],20,0);
     %exp.vids(ii).plotPosition([exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs)], ah, 0, 'b', '.');
 end
 %% Just print the video file names
