@@ -1,4 +1,4 @@
-function [Coef, CoefCI, e, fit] = fitARmodel(data, p)
+function [Coef, CoefCI, e, fit, DWStat] = fitARmodel(data, p)
 % function [Coef, e] = fitARmodel(data, p)
 % 
 % This is a simple, understandable function to fit an AR(p) model to a
@@ -7,9 +7,11 @@ function [Coef, CoefCI, e, fit] = fitARmodel(data, p)
 % This function fits via least squares, C and B, returning them in Coef.
 % e is a vector of the model residuals.
 %
+% RETURNS: Coef - AR model coefficients, CoefCI - confidence intervals,
+% e - error, fit - model prediction, DWStat - Durbin Watson stat
 
 % pb is a boolean for plotting the residuals
-pb = 0;
+dbg = 0;
 
 width = p;
  
@@ -29,15 +31,17 @@ X = [ones(length(y),1) X];
 %# Perform OLS
 [Coef, CoefCI, e] = regress(y, X);
 fit = X*Coef;
-disp(['Explained variance: ' num2str(100 * (var(data) - var(e))./var(data)) '%']);
-
+if dbg
+    disp(['Explained variance: ' num2str(100 * (var(data) - var(e))./var(data)) '%']);
+end
 %# Perform a durbin watson test on the residuals
 [DWpVal, DWStat] = dwtest(e, X);
-if DWpVal < 0.05; 
-    disp('WARNING: residuals from regression appear to be serially correlated. Estimated coefficients may not be consistent'); 
+%disp(sprintf('DPVAL = %f Stat = %f', DWpVal, DWStat)); 
+if (DWpVal > 0.05 && dbg) 
+    fprintf('WARNING: residuals from regression appear to be serially correlated. DPVAL = %f Stat = %f\n', DWpVal, DWStat); 
 end
 
-if pb
+if dbg
     ve = var(e);
     me = mean(e);
     [hy, bins] = hist(e,100);
