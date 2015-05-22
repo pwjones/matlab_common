@@ -4,8 +4,8 @@ function [peakVect, allPeakInds, allDirs] = findMinAndMaxPeaks(signal, thresh, p
 % findPeaks2 will find the peaks in a single direction.  Just do it both
 % ways and respect the peak_window to noise peaks
 
-[posPeaks, posDirs] = findPeaks2(signal, thresh, .08, 1, peak_window, varargin{:});
-[negPeaks, negDirs] = findPeaks2(signal, thresh, .08, -1, peak_window, varargin{:});
+[posPeaks, posDirs] = findPeaks2(signal, thresh, .05, 1, peak_window, varargin{:});
+[negPeaks, negDirs] = findPeaks2(signal, thresh, .05, -1, peak_window, varargin{:});
 
 posPeakInds = find(posPeaks);
 negPeakInds = find(negPeaks);

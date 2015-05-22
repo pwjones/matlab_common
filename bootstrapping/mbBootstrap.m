@@ -1,4 +1,4 @@
-function [meanStat, ci] = mbBootstrap(n, func, data, blockLen, blockOffset)
+function [meanStat, ci, stat] = mbBootstrap(n, func, data, blockLen, blockOffset)
 % function [meanStat, ci] = mbBootstrap(n, func, data, blockLen, blockOffset)
 %
 % Moving block bootstrap - generates a mean and CI around that mean for the

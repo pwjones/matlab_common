@@ -1,5 +1,5 @@
 function [peakTimes, dirs] = findPeaks2(signal, thresh, deriv_thresh, sign, peak_window, varargin)
-% function [peakTimes, eventVects] = findPeaks(signal, thresh, sign, peak_window)
+% function [peakTimes, dirs] = findPeaks2(signal, thresh, deriv_thresh, sign, peak_window, varargin)
 % 
 % signal - the signal you want to detect peaks in
 % thresh - the threshold value for peak detection

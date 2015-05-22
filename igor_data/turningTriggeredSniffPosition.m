@@ -23,8 +23,8 @@ for ii = 1:length(exp.resp)
     sniffphase = assignSniffPhase(exp.resp(ii).sniffVect); %this line doesn't work
   
     odist = double(mm_conv * exp.vids(ii).orthogonalDistFromTrail(1:exp.vids(ii).nFrames, 1));
-    fdist = odist(abs(odist) < thresh_dist);
-    exp_nosePos = cat(1, exp_nosePos, fdist(:));
+    fdist = odist(abs(odist) < thresh_dist); %following distances
+    exp_nosePos = cat(1, exp_nosePos, fdist(:)); 
     allDists = interp(odist, upn);
     % Get the trajectories of the nose relative to the trail
     [turningInds, dirs, nose_traj] = exp.vids(ii).findFollowingTurns([], 1, thresh_dist, traj_wind);
@@ -45,7 +45,8 @@ for ii = 1:length(exp.resp)
     newTurningInds = (turningInds-1)*upn + 1;
     newTurningTimes = exp_t(newTurningInds);
     %newCrossingInds = (crossingFrames-1)*upn + 1 - (upn-adj_i');
-    % want to build the distribution of sniff times and positions relative to crossing
+    % want to build the distribution of sniff times and positions relative
+    % to turning times
     relSniffTime = NaN*zeros(length(newTurningInds), ns);
     relSniffDists = NaN*zeros(length(newTurningInds), ns);
     for jj=1:length(newTurningInds) 
@@ -69,7 +70,8 @@ exp_wind = exp_wind / exp.vids(1).frameRate * 1000; %convert to ms
 %%
 % We should do some calculation for the Khan et al (Bhalla), turn-triggered difference of sniff position
 mean_pos = nanmean(exp_nosePos);
-absDists = abs(exp_relSniffDists-mean_pos);
+alpha = 1.25; alpha = 0;
+absDists = abs(exp_relSniffDists+alpha);
 distChange = diff(absDists, 1, 2);
 mean_distChange = nanmean(distChange);
 label = {'-4to-3', '-3to-2', '-2to-1', '-1to1', '1to2','2to3', '3to4'};

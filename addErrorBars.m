@@ -12,8 +12,8 @@ hatlen = 1;
 if (~isempty(varargin))
      hatlen = varargin{1};
 end
-eHandles = zeros(length(x)*3,1);
-for i = 1:length(x)
+eHandles = zeros(numel(x)*3,1);
+for i = 1:numel(x)
     handlei = 3*(i-1)+1;
     top = y(i)+e(i);
     bottom =  y(i)-e(i);

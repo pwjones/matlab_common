@@ -43,7 +43,7 @@ while ( ~done )
 %         end;
         win_end = min(n_pts, i+peak_window); %look ahead
         [peak_val, spike_peak] = max(signal(i:win_end)); 
-        spike_peak = spike_peak+i;
+        spike_peak = spike_peak+i-1;
         peakTimes(spike_peak) = 1;
         spknum = spknum+1;
         window_min = max(spike_peak - peak_window, 1);
@@ -60,7 +60,7 @@ while ( ~done )
 %             eventVects(spknum,:) = signal(spike_peak-peak_window:spike_peak+peak_window);
 %         end;
         %i = spike_start+peak_window; %this allows events to be spaced too closely
-        i = spike_peak+(peak_window/2);
+        i = spike_peak+ceil(peak_window/2);
     end;
 end;
 

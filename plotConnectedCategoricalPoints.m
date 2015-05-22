@@ -10,7 +10,7 @@ else
     err = NaN*zeros(size(xdata));
 end
 
-plot(ah, xdata, ydata, 'o-k', 'MarkerSize', 10); 
+plot(ah, xdata, ydata, 'o-k', 'MarkerSize', 12); 
 %hold on;
 
 for ii = 1:length(sig(:))
