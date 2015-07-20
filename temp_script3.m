@@ -93,8 +93,8 @@ end
 
 %% Plotting respiration frequency as a color over the positions
 ft = 1:length(exp.resp);
-ft = 3;
-fr = 1:1500;
+ft = 2;
+fr = [];
 for ii = ft
     %fr = 1:exp.vids(ii).nFrames;
     exp.vids(ii).plotPosition(fr, [], 0, 'k', '.');
@@ -104,7 +104,7 @@ for ii = ft
     sniffFrames = exp.camTrig(ii).frameRange(sniffFrames);
     freq = exp.resp(ii).sniffFreq(exp.camTrig(ii).frameInds(sniffFrames)); 
     pos = pos(sfi, :);
-    [cm cinds] = getIndexedColors('jet', freq, 1);
+    [cm, cinds] = getIndexedColors('jet', freq, 1);
     %minfreq = min(freq)
     %maxfreq = max(freq)
     for jj=1:length(freq)

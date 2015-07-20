@@ -3,7 +3,10 @@ function [rot_dir, test_rot]  = rotationDirection(ref_vect, test_vect)
 % 
 % Given a reference vector (ref_vect), which can be a vector of 
 % directions, from 0-2pi radians, give the handedness of the rotation to
-% the test vector (test_vect).  Return ROT_DIR which is 1 for right handed
+% the test vector (test_vect), which is also given by values from 0-2pi.  
+% These are vectors in the array sense, not in the magnitude/direction sense.
+% Both inputs are directions.  
+% Returns ROT_DIR which is 1 for right handed
 % rotation, -1 for left handed rotation, and 0 for no rotation.
 %
 % Test_rot is the angular difference between the two angles, with 0 being

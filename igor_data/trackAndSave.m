@@ -3,6 +3,10 @@ function vid = trackAndSave(tracker, folder_path, fname, starts, ends, ii, saveF
 %
 % ------------------------ Helper function to processVideoFolder ---------------------
 disp(['In trackAndSave: ' folder_path fname]);
+if isempty(starts)
+    starts = zeros(ii,1);
+    ends = zeros(ii,1);
+end
 if (starts(ii)==0 && ends(ii)==0) %the tag to just read the whole video. Leaving blank destroys file reading
     disp('Calling without limits');
     vid = tracker([folder_path fname], []);
