@@ -224,7 +224,7 @@ post_angles = mod(allPostTurnHeadings(catbin == 1)+(2*pi), 2*pi);
 plot(pre_angles, post_angles, '^g'); hold on;
 diff_fig = figure; 
 labelah = axes('Position', [ 0 0 1 1], 'Visible', 'off'); 
-text(labelah, .3, .1, ' Turning Magnitudes', 'FontSize', 18);
+text(.3, .1, ' Turning Magnitudes', 'FontSize', 18);
 subplot(2,3,1);
 ang_diff = circ_dist(post_angles, pre_angles);
 rose2(ang_diff);

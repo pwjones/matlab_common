@@ -55,7 +55,7 @@ for ii = 1:length(fnames)
         vid = tracker(fname, [], [starts(ii), ends(ii)]); %consider the given range
     end
     vid.mousePosition([]); %compute position in whole movie, as defined on opening
-    vid.save(); %save tracking to mat file
+    %vid.save(); %save tracking to mat file
     vids(ii) = vid;
 end
 disp('Checking for missing frames in videos'); %doing exactly that

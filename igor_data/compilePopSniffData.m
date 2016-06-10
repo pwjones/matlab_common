@@ -3,7 +3,7 @@ function sniffData = compilePopSniffData()
 % Load all of the processed data from the Spring-Fall 2014 sniffing dataset
 global SNIFF_ROOT;
 base_folder = SNIFF_ROOT;
-
+save_flag = 1;
 mouse_names = {'19439', '21413', '971', '1080', '1527'};
 %mouse_names = {'1080'};
 folders = {''};

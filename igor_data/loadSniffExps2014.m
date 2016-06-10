@@ -11,8 +11,8 @@ following_thresh = 20; %mm
 mov_thresh = 40; %mm/sec
 
 allSniffData = [];
-%for ii = 1:nMice
-for ii = 3:3
+for ii = 1:nMice
+%for ii = 3:3
     mouseData = struct('vids', [], 'resp', [], 'camTrig', []);
     for jj = 1:length(folders)
         saved_file = [base_folder filesep folders{jj} filesep folders{jj} '_' mouse_names{ii} '.mat'];
