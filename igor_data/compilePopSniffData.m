@@ -5,7 +5,8 @@ global SNIFF_ROOT;
 base_folder = SNIFF_ROOT;
 save_flag = 1;
 mouse_names = {'19439', '21413', '971', '1080', '1527'};
-%mouse_names = {'1080'};
+mouse_names = {'19439'};
+shiftSniffs = 1;
 folders = {''};
 nMice = length(mouse_names);
 sniffData = [];
@@ -23,7 +24,7 @@ end
 
 
 % ------------------------------------------------
-function data = extractMouseSniffData(exp, data)
+function data = extractMouseSniffData(exp, data, shiftSniffs)
 % function data = extractMouseSniffData(exp, data)
 %
 % Called once per each mouse (exp structure).  Then appends to whatever
@@ -35,6 +36,7 @@ thresh_vel = 40; %mm/sec
 mm_conv = .862; %mm/px linear
 traj_wind = -5:15; % #of samples around the turning to retrieve - 50fps, 20ms per frame
 turn_wind = .08; %s, time after a sniff to look for turns
+nboot = 1000;
 
 % data structures for the turning probabilities
 dist_diffs = []; bturn = []; turnDirections = []; dirToTrail = []; mouseHeadingFromOrtho = []; 
@@ -51,9 +53,13 @@ for ii = 1:length(exp.vids)
     bodyVel = exp.vids(ii).bodyVel(:,1) * mm_conv * exp.vids(ii).frameRate;
     
     dt = exp.vids(ii).times(2) - exp.vids(ii).times(1);
+    
     % Let's gather the sniff information
     sniffFrames = exp.resp(ii).sniffFrames(exp.resp(ii).vidSniffs);
     sniffTimes = exp.resp(ii).sniffTimes(exp.resp(ii).vidSniffs);
+    if shiftSniffs
+        shifts = randi([0 ceil(mean(diff(sniffFrames)))], [nboot, 1]);
+    end
     
     %The nose trajectories and following segments
     odist= exp.vids(ii).orthogonalDistFromTrail(1:exp.vids(ii).nFrames, 1);

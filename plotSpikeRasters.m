@@ -12,11 +12,9 @@ for i=1:ntrials
     spki = find(spikes(i,:) > 0.5); %spikes are 1, non spikes are 0/NaN
     if (~isempty(spki))
         for m = 1:length(spki)
-          %spk_inds_m = spk_inds(m);
           t_val = time(spki(m));
           rh_temp = line('Parent',axis_h,'XData',[t_val t_val],...
-              'YData',y_vect,'Tag','single_spike', 'LineWidth', 1);
-          %rh_temp = plot(axis_h, [t_val t_val], y_vect);
+              'YData',y_vect,'Tag','single_spike', 'LineWidth', 2);
           rh(count) =rh_temp;
           count = count + 1;
         end;

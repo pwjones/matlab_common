@@ -37,7 +37,7 @@ function [lineh, patch_h] = plot_err_poly (axis_h, time, v_mean, v_sd, color, pa
   % First plot the SDs
   [x_err_poly, y_err_poly] = get_sem_poly(time, v_mean, v_sd);
   
-  patch_h = patch(x_err_poly,y_err_poly, patch_color,'EdgeColor', 'none', 'Parent', axis_h); % , 'FaceAlpha', patch_alpha
+  patch_h = patch(x_err_poly,y_err_poly, patch_color,'EdgeColor', 'none', 'Parent', axis_h, 'FaceAlpha', patch_alpha); % 
   %line('Parent', gca, 'XData', x_err_poly, 'YData', y_err_poly, 'Linewidth', 2);
   %plot(x_err_poly, y_err_poly);
  
