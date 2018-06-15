@@ -14,7 +14,6 @@ posEdges = [-15:-1 1:15];
 ddEdges = -9:9;
 meanHeading_pos = zeros(length(posEdges),3, size(resamp_idx,3));
 meanHeading_dpos = zeros(length(ddEdges),3, size(resamp_idx,3));
-meanB = [];
 for kk=1:size(resamp_idx,3)
     idx = resamp_idx(:,3,1); %the first resampling based on most adjacent dd
     
@@ -32,23 +31,17 @@ for kk=1:size(resamp_idx,3)
         for ii = 1:length(posEdges)
             temp = dHeading(:, 1);
             temp = temp(bin == ii);
-            meanHeading_pos(ii,jj, kk) = nanmean(temp);
+            meanHeading_pos(ii,jj) = nanmean(temp);
         end
         [N,bin] = histc(sniffData.dist_diffs(idx,jj), ddEdges);
         for ii = 1:length(ddEdges)
             temp = dHeading(:, 1);
             temp = temp(bin == ii);
-            meanHeading_dpos(ii,jj, kk) = nanmean(temp);
+            meanHeading_dpos(ii,jj) = nanmean(temp);
         end
     end
     
-    X = [sniffData.dist_diffs(idx,3), sniffData.dist_diffs(idx,2), sniffData.sniffPos(idx, 4), sniffData.sniffPos(idx, 3) ones(length(idx),1)];
-    [b,bint,r,rint,stats] = regress(dHeading,X);
-    meanB = cat(2, meanB, b);
-    
 end
-meanHeading_pos = nanmean(meanHeading_pos, 3);
-meanHeading_dpos = nanmean(meanHeading_dpos, 3);
 
 figure;
 subplot(2,3,1);
@@ -72,11 +65,11 @@ plot(sniffData.dist_diffs(idx,3), dHeading(:), 'k.');
 xlabel('-1 to 0 \Delta Sniff Position (mm)'); ylabel('Heading Change');
 xlim([-10 10]);
 
-subplot(2,3, 2); ylim([0 2]);
+subplot(2,3, 2); ylim([-1 2]);
 hold on; plot(posEdges, meanHeading_pos(:,1), 'r', 'LineWidth', 2);
-subplot(2, 3, 3); ylim([0 2]);
+subplot(2, 3, 3); ylim([-1 2]);
 hold on; plot(posEdges, meanHeading_pos(:,2), 'r', 'LineWidth', 2);
-subplot(2,3,5); ylim([0 2]);
+subplot(2,3,5); ylim([-1 2]);
 hold on; plot(ddEdges, meanHeading_dpos(:,1), 'r', 'LineWidth', 2);
-subplot(2,3,6); ylim([0 2]);
+subplot(2,3,6); ylim([-1 2]);
 hold on; plot(ddEdges, meanHeading_dpos(:,2), 'r', 'LineWidth', 2);

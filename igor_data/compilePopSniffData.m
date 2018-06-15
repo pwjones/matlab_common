@@ -5,7 +5,7 @@ global SNIFF_ROOT;
 base_folder = SNIFF_ROOT;
 save_flag = 1;
 mouse_names = {'19439', '21413', '971', '1080', '1527'};
-mouse_names = {'19439'};
+%mouse_names = {'19439'};
 shiftSniffs = 1;
 folders = {''};
 nMice = length(mouse_names);

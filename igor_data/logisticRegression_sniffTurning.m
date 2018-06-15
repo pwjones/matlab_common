@@ -1,41 +1,13 @@
-%resampleSniffData
-rep = 500;
-sampN = 500;
-nback = 3;
-edges = -9:9; %binning edges
+% Logistic regression of the binary turning data
 
-% resampling the sniffing data in order to create a uniform sampling across the variables that I want to look
-% at turning probability relative to. First bin the variables and then randomly sample with replacement from each
-% bin.
+resampleSniffData;
 
-%initializing vars
-tp=[];
-turnp = zeros(length(edges), nback, rep);
-ND_resamp = zeros(length(edges), nback, rep);
-deltaND_resamp = NaN*zeros(length(edges), nback, rep);
-turnDNDcell = cell(size(sniffData.dist_diffs,2), rep);
-resamp_idx = []; resamp_bturn=[];
-for kk=1:rep
-    for jj = 1:size(sniffData.dist_diffs,2)
-        %[N,bin] = histc(sniffData.sniffPos(:,jj+1), edges);
-        [N,bin] = histc(sniffData.dist_diffs(:,jj), edges);
-        nbins = length(N);
-        samp_idx = [];
-        for ii = 1:(nbins-1)
-            bin_idx = find(bin ==ii);
-            [turnb, idx] = datasample(sniffData.bturn(bin == ii), sampN); %sample uniformly based on binning above
-            samp_idx = cat(1, samp_idx, bin_idx(idx));
-        end
-        resamp_bturn(:,jj,kk) = sniffData.bturn(samp_idx);
-        resamp_idx(:,jj,kk) = samp_idx;
-    end
-end
 %overall probability of a turn in the dataset
 global_turnp = squeeze(sum(resamp_bturn,1)) ./ size(resamp_bturn,1);
 global_mturnp = mean(global_turnp, 2);
 
 % try some logistic regression of the variables
-% First, just gonna plot the relaven
+% First, just gonna plot the relevant vars across the range that we're considering
 %for kk=1:rep
 samp_dND = sniffData.dist_diffs(resamp_idx(:,3,1), :);
 samp_ND = sniffData.sniffPos(resamp_idx(:,3,1), :);
@@ -72,7 +44,8 @@ for i = 1:4
     xlim([min(edges) max(edges)]);
 end
 
-[B, dev, stats] = mnrfit([samp_dND(:,3), samp_ND(:,4)], bturn+1);
+
+
 
 % rsDND = NaN*zeros(50*sampN*(length(edges)-1),1);
 % rsND = NaN*zeros(50*sampN*(length(edges)-1),1);
