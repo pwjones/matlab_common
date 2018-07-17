@@ -6,7 +6,7 @@ base_folder = SNIFF_ROOT;
 save_flag = 1;
 mouse_names = {'19439', '21413', '971', '1080', '1527'};
 %mouse_names = {'19439'};
-shiftSniffs = 1;
+shiftSniffs = 0;
 folders = {''};
 nMice = length(mouse_names);
 sniffData = [];
@@ -17,7 +17,7 @@ for ii = 1:nMice
         disp(['Loading: ' saved_file]);
         load(saved_file);
         % The variable 'mouseData' is created in the variable space
-        sniffData = extractMouseSniffData(mouseData, sniffData);
+        sniffData = extractMouseSniffData(mouseData, sniffData, shiftSniffs);
     end
 end
 
@@ -34,7 +34,7 @@ function data = extractMouseSniffData(exp, data, shiftSniffs)
 thresh_dist = 20; %mm
 thresh_vel = 40; %mm/sec
 mm_conv = .862; %mm/px linear
-traj_wind = -5:15; % #of samples around the turning to retrieve - 50fps, 20ms per frame
+traj_wind = -10:15; % #of samples around the turning to retrieve - 50fps, 20ms per frame
 turn_wind = .08; %s, time after a sniff to look for turns
 nboot = 1000;
 
@@ -42,7 +42,7 @@ nboot = 1000;
 dist_diffs = []; bturn = []; turnDirections = []; dirToTrail = []; mouseHeadingFromOrtho = []; 
 allPreTurnHeadings = []; allTurnTrajectories = []; allTurnDirs = []; 
 allPostTurnHeadings = []; allPreTurnDistDiff = []; turnLag = [];
-allSniffDirToTrail = []; allSniffHeadingsFromOtho = []; allSniffISI = []; allTurnSniffPos = [];
+allSniffDirToTrail = []; allSniffHeadingsFromOrtho = []; allSniffISI = []; allTurnSniffPos = [];
 newSeg = []; allTurnPos = []; allSniffPos = []; allPostTurnDirToTrail = []; allPreTurnDirToTrail = [];
 allPostTurnPos = []; allPrePos = [];
 
@@ -97,7 +97,7 @@ for ii = 1:length(exp.vids)
     sniffDirToTrail = sniffDirToTrail(sel, :);
     sniffHeadingFromOrtho = sniffHeadingFromOrtho(sel, :);
     
-    tpos = exp.vids(ii).orthogonalDistFromTrail(turningInds-2,1); % position 2 frames before turn
+    tpos = exp.vids(ii).orthogonalDistFromTrail(turningInds,1); % position at turning frame
     [thead, ~, toTrail] = exp.vids(ii).headingFromMotion_TrailRelative(turningInds-4, 1); %heading before turn
     prePos = exp.vids(ii).orthogonalDistFromTrail(turningInds-4, 1);
     [theadPost, ~, toTrailPost] = exp.vids(ii).headingFromMotion_TrailRelative(turningInds+4, 1); %heading after turn
@@ -110,11 +110,11 @@ for ii = 1:length(exp.vids)
     allPreTurnDirToTrail = [allPreTurnDirToTrail; toTrail];
     allPrePos = [allPrePos; prePos];
     allSniffDirToTrail = [allSniffDirToTrail; sniffDirToTrail];
-    allSniffHeadingsFromOtho = [allSniffHeadingsFromOtho; sniffHeadingFromOrtho];
+    allSniffHeadingsFromOrtho = [allSniffHeadingsFromOrtho; sniffHeadingFromOrtho];
     allPostTurnHeadings = [allPostTurnHeadings; theadPost];
     allPostTurnDirToTrail = [allPostTurnDirToTrail; toTrailPost];
     allPostTurnPos = [allPostTurnPos; postPos];
-    allTurnDirs = [allTurnDirs; dirs(:).*tpos(:)];
+    allTurnDirs = [allTurnDirs; dirs(:)];
     allPreTurnDistDiff = [allPreTurnDistDiff; dd];
     allTurnSniffPos = [allTurnSniffPos; sniffPos];
     allTurnPos = [allTurnPos; tpos];
@@ -158,8 +158,11 @@ for ii = 1:length(exp.vids)
             % Previous turnDir is signed -1 for a rightward turn, 1 for a
             % leftward one.  Since the left side of the trail is negative
             % space, the positive product is toward the trail and neg is
-            % away from the trail.
-            turnDirections = [turnDirections; td*odist(sniffs(kk))];
+            % away from the trail. NOTE THAT THIS IS DIFFERENT THAN THE PROCESSING
+            % DONE FOR THE NON-SNIFF POPULATION DATA - THAT IS KEPT AS LEFT/RIGHT.
+            % ALSO THIS IS USING THE sniff position rather than the actual turn position
+            %turnDirections = [turnDirections; td*odist(sniffs(kk))];
+            turnDirections = [turnDirections; td];
             if (kk == 1) newSeg = [newSeg; 1]; else newSeg = [newSeg; 0]; end
         end
         %dist_diffs = [dist_diffs; NaN, NaN, NaN]; %want to pad one row of NaNs between segments
@@ -215,8 +218,9 @@ data.turnTrig_postTurnDirToTrail = cat(1, data.turnTrig_postTurnDirToTrail, allP
 data.turnTrig_postTurnPos = cat(1,data.turnTrig_postTurnPos, allPostTurnPos);
 data.turnTrig_preTurnDistDiff = cat(1,data.turnTrig_preTurnDistDiff, allPreTurnDistDiff);
 data.turnTrig_turnLag = cat(1,data.turnTrig_turnLag, turnLag);
-data.turnTrig_sniffHeadings = cat(1,data.turnTrig_sniffHeadings, allSniffHeadingsFromOtho);
+data.turnTrig_sniffHeadings = cat(1,data.turnTrig_sniffHeadings, allSniffHeadingsFromOrtho);
 data.turnTrig_sniffDirToTrail = cat(1,data.turnTrig_sniffDirToTrail, allSniffDirToTrail);
 data.followingSniffISI = cat(1, data.followingSniffISI, allSniffISI);
 data.turnTrig_sniffPos = cat(1, data.turnTrig_sniffPos, allTurnSniffPos);
 data.turnTrig_turnPos = cat(1, data.turnTrig_turnPos, allTurnPos);
+data.traj_wind = traj_wind;

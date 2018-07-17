@@ -26,8 +26,8 @@ else
         starts = res{2};
         ends = res{3};
 
-        s = matlabpool('size');
-        if s==0 %check if parallel toolbox is running.  If not, just do regular for loop
+        s = ~isempty(gcp('nocreate')); %check if parallel toolbox is running.  If not, just do regular for loop
+        if s==0 
             for ii = 1:length(fnames)
                 vids(ii) = trackAndSave(tracker, folder_path, fnames{ii}, starts, ends, ii, saveFlag);
             end

@@ -7,25 +7,28 @@
 % the last intervel from the position of the sniffs before and the change
 % in position
 
-%resampleSniffData; %run first to randomly resample the behavioral data in
+resampleSniffData; %run first to randomly resample the behavioral data in
 %order to balance mouse positions
 
 posEdges = [-15:-1 1:15];
 ddEdges = -9:9;
 meanHeading_pos = zeros(length(posEdges),3, size(resamp_idx,3));
 meanHeading_dpos = zeros(length(ddEdges),3, size(resamp_idx,3));
-meanB = [];
+meanB = []; meanBint=[];
+bturnAll = zeros(size(resamp_idx, 1), size(resamp_idx,3));
 for kk=1:size(resamp_idx,3)
-    idx = resamp_idx(:,3,1); %the first resampling based on most adjacent dd
+    idx = resamp_idx(:,3,kk); %the kk resampling based on most adjacent dd
     
     dHeading = zeros(size(sniffData.dist_diffs(idx,3),1), 1);
     % to avoid discontinuities when animal crosses the trail, convert relative angles
     % to absolute heading angles before taking their distances
     [paraHeading, absHeading] = convertMouseHeadingAngles(sniffData.mouseHeadingFromOrtho(idx,:), sniffData.dirToTrail(idx,:), sniffData.sniffPos(idx,:));
-    for ii = 1:1
-        dHeading(:,ii) = circ_dist(absHeading(:,ii+3), absHeading(:,ii+2));
-    end
+    
+    trailDirChange = circ_dist(sniffData.dirToTrail(idx,4), sniffData.dirToTrail(idx,3)); 
+    dHeading = circ_dist(absHeading(:,4), absHeading(:,3));
+    dHeading = circ_dist(dHeading, trailDirChange); %recorrecting the changes in direction for changes in 
     dHeading = abs(dHeading);
+    bturn = logical(sniffData.bturn(idx));
     
     for jj = 1:3
         [N,bin] = histc(sniffData.sniffPos(idx,jj+1), posEdges);
@@ -45,30 +48,34 @@ for kk=1:size(resamp_idx,3)
     X = [sniffData.dist_diffs(idx,3), sniffData.dist_diffs(idx,2), sniffData.sniffPos(idx, 4), sniffData.sniffPos(idx, 3) ones(length(idx),1)];
     [b,bint,r,rint,stats] = regress(dHeading,X);
     meanB = cat(2, meanB, b);
-    
+    meanBint = cat(3, meanBint, bint);
 end
 meanHeading_pos = nanmean(meanHeading_pos, 3);
 meanHeading_dpos = nanmean(meanHeading_dpos, 3);
 
 figure;
+ah = [];
 subplot(2,3,1);
-plot(sniffData.sniffPos(idx,2), dHeading(:), 'k.');
+ah(1) =plot(sniffData.sniffPos(idx,2), dHeading(:), '.k'); hold on;
+plot(sniffData.sniffPos(idx(bturn),2), dHeading(bturn), '.b');
 xlabel('-2 Sniff Position (mm)'); ylabel('Heading Change');
 xlim([-15 15]);
 subplot(2,3,2);
-plot(sniffData.sniffPos(idx,3), dHeading(:), 'k.');
+ah(2) = plot(sniffData.sniffPos(idx,3), dHeading(:), '.k'); hold on;
+plot(sniffData.sniffPos(idx(bturn),3), dHeading(bturn), '.b');
 xlabel('-1 Sniff Position (mm)'); ylabel('Heading Change');
 xlim([-15 15]);
 subplot(2, 3, 3);
-plot(sniffData.sniffPos(idx,4), dHeading(:), '.k');
+ah(3) = plot(sniffData.sniffPos(idx,4), dHeading(:), '.k'); hold on;
 xlabel('0 Sniff Position (mm)'); ylabel('Heading Change');
 xlim([-15 15]);
 subplot(2,3,5);
-plot(sniffData.dist_diffs(idx,2), dHeading(:), 'k.');
+ah(5) = plot(sniffData.dist_diffs(idx,2), dHeading(:), 'k.');
 xlabel('-2 to -1 \Delta Sniff Position (mm)'); ylabel('Heading Change');
 xlim([-10 10]);
 subplot(2,3,6);
-plot(sniffData.dist_diffs(idx,3), dHeading(:), 'k.');
+ah(6) = plot(sniffData.dist_diffs(idx,3), dHeading(:), 'k.'); hold on;
+plot(sniffData.dist_diffs(idx(bturn),3), dHeading(bturn), '.b');
 xlabel('-1 to 0 \Delta Sniff Position (mm)'); ylabel('Heading Change');
 xlim([-10 10]);
 

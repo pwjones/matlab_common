@@ -17,8 +17,8 @@ turnDNDcell = cell(size(sniffData.dist_diffs,2), rep);
 resamp_idx = []; resamp_bturn=[];
 for kk=1:rep
     for jj = 1:size(sniffData.dist_diffs,2)
-        [N,bin] = histc(sniffData.sniffPos(:,jj+1), pos_edges);
-        %[N,bin] = histc(sniffData.dist_diffs(:,jj), edges);
+        %[N,bin] = histc(sniffData.sniffPos(:,jj+1), pos_edges);
+        [N,bin] = histc(sniffData.dist_diffs(:,jj), edges);
         nbins = length(N);
         samp_idx = [];
         for ii = 1:(nbins-1)
